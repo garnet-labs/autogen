@@ -1,0 +1,55 @@
+name: Garnet AutoGen MCP CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/garnet-autogen-mcp-ci.yml"
+      - ".github/scripts/garnet_mcp_smoke.py"
+      - "python/pyproject.toml"
+      - "python/packages/autogen-ext/pyproject.toml"
+      - "python/uv.lock"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  mcp-smoke:
+    name: MCP Tool Discovery (Garnet)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install AutoGen MCP dependencies
+        run: uv sync --locked --all-extras
+        working-directory: python
+
+      - name: Garnet Runtime Visibility
+        uses: garnet-org/action@v2
+        with:
+          api_token: ${{ secrets.GARNET_API_TOKEN }}
+          jibril_version: v2.14.0
+
+      - name: Discover time MCP tools
+        run: uv run python ../.github/scripts/garnet_mcp_smoke.py
+        working-directory: python
+        env:
+          GARNET_MCP_COMMAND: uvx
+          GARNET_MCP_ARGS: >-
+            --from mcp-server-time==2026.6.4
+            mcp-server-time
