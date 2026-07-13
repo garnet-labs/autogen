@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/garnet-autogen-mcp-ci.yml"
       - ".github/scripts/garnet_mcp_smoke.py"
+      - ".github/garnet-autogen-smoke/**"
       - "python/pyproject.toml"
       - "python/packages/autogen-ext/pyproject.toml"
       - "python/uv.lock"
@@ -39,6 +40,16 @@ jobs:
         run: uv sync --locked --all-extras
         working-directory: python
 
+      - name: Install time MCP smoke dependency
+        run: uv sync
+        working-directory: .github/garnet-autogen-smoke
+
+      - name: Upload generated smoke lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: garnet-autogen-smoke-lock
+          path: .github/garnet-autogen-smoke/uv.lock
+
       - name: Garnet Runtime Visibility
         uses: garnet-org/action@v2
         with:
@@ -49,5 +60,5 @@ jobs:
         run: uv run python ../.github/scripts/garnet_mcp_smoke.py
         working-directory: python
         env:
-          GARNET_MCP_COMMAND: .venv/bin/mcp-server-time
+          GARNET_MCP_COMMAND: ${{ github.workspace }}/.github/garnet-autogen-smoke/.venv/bin/mcp-server-time
           GARNET_MCP_ARGS: ""
