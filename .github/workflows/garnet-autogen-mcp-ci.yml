@@ -41,14 +41,8 @@ jobs:
         working-directory: python
 
       - name: Install time MCP smoke dependency
-        run: uv sync
+        run: uv sync --locked
         working-directory: .github/garnet-autogen-smoke
-
-      - name: Upload generated smoke lock
-        uses: actions/upload-artifact@v4
-        with:
-          name: garnet-autogen-smoke-lock
-          path: .github/garnet-autogen-smoke/uv.lock
 
       - name: Garnet Runtime Visibility
         uses: garnet-org/action@v2
