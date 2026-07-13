@@ -1,5 +1,6 @@
 [dependency-groups]
 dev = [
+    "mcp-server-time==2026.6.4",
     "pyright==1.1.389",
     "mypy==1.13.0",
     "ruff==0.4.8",
