@@ -51,5 +51,9 @@ jobs:
         env:
           GARNET_MCP_COMMAND: uvx
           GARNET_MCP_ARGS: >-
+            --no-cache
+            --isolated
+            --refresh-package
+            mcp-server-time
             --from mcp-server-time==2026.6.4
             mcp-server-time
