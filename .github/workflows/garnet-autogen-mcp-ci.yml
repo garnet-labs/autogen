@@ -6,7 +6,6 @@ on:
     paths:
       - ".github/workflows/garnet-autogen-mcp-ci.yml"
       - ".github/scripts/garnet_mcp_smoke.py"
-      - ".github/garnet-autogen-smoke/**"
       - "python/pyproject.toml"
       - "python/packages/autogen-ext/pyproject.toml"
       - "python/uv.lock"
@@ -40,19 +39,21 @@ jobs:
         run: uv sync --locked --all-extras
         working-directory: python
 
-      - name: Install time MCP smoke dependency
-        run: uv sync --locked
-        working-directory: .github/garnet-autogen-smoke
-
       - name: Garnet Runtime Visibility
         uses: garnet-org/action@v2
         with:
           api_token: ${{ secrets.GARNET_API_TOKEN }}
           jibril_version: v2.14.0
+          debug: "true"
+
+      - name: Install time MCP tool
+        run: |
+          uv tool install --force --no-cache mcp-server-time==2026.6.4
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Discover time MCP tools
         run: uv run python ../.github/scripts/garnet_mcp_smoke.py
         working-directory: python
         env:
-          GARNET_MCP_COMMAND: ${{ github.workspace }}/.github/garnet-autogen-smoke/.venv/bin/mcp-server-time
+          GARNET_MCP_COMMAND: mcp-server-time
           GARNET_MCP_ARGS: ""
